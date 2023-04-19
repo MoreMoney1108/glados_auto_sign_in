@@ -1,0 +1,35 @@
+name: auto-actions # 触发 workflow 的事件
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 16-17 * * *" # 该时间为UTC时间，比北京时间晚8个小时，每天凌晨 0、1 点自动执行
+    # 每天9.30 '30 9 * * *'
+    # 每小时执行 '0 * * * *'
+
+# 一个workflow由执行的一项或多项job
+jobs:
+  # 一个job任务，任务名为 run-autoSignIn
+  run-autoSignIn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main #采用main分支下的
+
+      - name: Setup Node.js #新建一个名为Setup Node.js的步骤
+        uses: actions/setup-node@v2 #安装node.js
+        with:
+          node-version: "16"
+
+      - name: Install Dependency
+        run: |
+          npm install
+          npm install got
+          npm install tough-cookie         
+
+      - name: Run Auto SignIn
+        run: node ./index.js  #脚本存在根目录scripts文件夹下
+        env:
+          COOKIES: ${{ secrets.COOKIES }}    
+          QQ_SENDER: ${{ secrets.QQ_SENDER }}
